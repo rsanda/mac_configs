@@ -25,5 +25,5 @@ tell application "iTerm"
 end tell
 ```
 
-It is possible to create a Quick Actions for the TouchBar using Automator.
+**It is possible to create "Quick Actions" for the TouchBar using Automator.**
 
