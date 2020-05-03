@@ -78,3 +78,8 @@ tell application "System Events" to tell process "Zscaler"
 	end tell
 end tell
 ```
+
+It is possible to automate run this script everytime you login to your Mac.
+
+[How to create Automator app](https://www.instructables.com/id/How-to-make-apps-automator/)
+[How to run app at startup](https://www.idownloadblog.com/2015/03/24/apps-launch-system-startup-mac/)
