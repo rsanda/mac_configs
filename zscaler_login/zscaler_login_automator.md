@@ -1,12 +1,14 @@
 # Applescrip to automate Zscaler Private Access loging
 
 I have to use Zscaler for my day to day work. The headace is, I have to prove myself by login to Zscaler.
+
 Getting to the login menu of Zscaler PA requires a lot of clicking. Depending on the configuration by the Zscaler admin, it is required to login every few hours. Zscaler doesn't let me know that I have to relogin until an app tries to use PA.
 So, I have to,
 1. Use the PA app and notified that I have to relogin.
 2. Relogin to Zscaler PA.
 
 I have to do this every morning and I thought to automate this because it takes 1~2 minutes for the whole process. I am sharing the AppleScript I created for others as reference.
+
 Honestly, it was not easy creating this script. Zscaler works as an "agent app" and it doesn't have a Scripting Dictionary. Also, it doesn't answer to normal Applescript commands. I think they don't provide this on purpose.
 
 The following script does the following:
