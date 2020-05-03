@@ -1,6 +1,6 @@
 # Applescrip to automate Zscaler Private Access loging
 
-Note: I am not sure whether this script will work in other systems since the element identifiers may differ in other systems.
+## **Note: I am not sure whether this script will work in other systems since the element identifiers may differ in other systems.**
 
 I have to use Zscaler for my day to day work. The headace is, I have to prove myself by login to Zscaler.
 
