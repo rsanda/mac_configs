@@ -71,9 +71,6 @@ tell application "System Events" to tell process "Zscaler"
 				tell group 1
 					set value of text field 1 of group 1 of group 5 to ZS_USERNAME
 					keystroke tab
-					key code 36
-					delay 4
-					click button "Send Push"
 				end tell
 			end tell
 		end tell
