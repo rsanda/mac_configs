@@ -1,5 +1,7 @@
 # Applescrip to automate Zscaler Private Access loging
 
+Note: I am not sure whether this script will work in other systems since the element identifiers may differ in other systems.
+
 I have to use Zscaler for my day to day work. The headace is, I have to prove myself by login to Zscaler.
 
 Getting to the login menu of Zscaler PA requires a lot of clicking. Depending on the configuration by the Zscaler admin, it is required to login every few hours. Zscaler doesn't let me know that I have to relogin until an app tries to use PA.
