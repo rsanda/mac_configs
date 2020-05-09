@@ -1,4 +1,4 @@
-# Applescript to automate Zscaler Private Access loging
+# Applescript to automate Zscaler Private Access log-in
 
 ## **Note: I am not sure whether this script will work in other systems since the element identifiers may differ in other systems.**
 
