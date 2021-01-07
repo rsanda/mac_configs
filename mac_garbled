@@ -1,0 +1,11 @@
+* To correct less, add the following to `~/.zshrc`.
+  ```
+   LESSCHARSET=utf-8
+   ```
+
+* To correct vim, add the following to `~/.vimrc`.
+   ```
+   :set encoding=utf-8
+   :set fileencodings=utf-8,cp932,euc-jp,sjis
+   :set fileformat=unix
+   ```
