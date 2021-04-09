@@ -1,0 +1,18 @@
+# Configs required to use aws cli and git behind Zscaler
+
+## aws cli
+1. Install aws cli
+2. Specify the the path to ZScaler Root Certificate as "ca_bundle" in "~/.aws/config"
+```
+[default]
+region=ap-northeast-1
+output=json
+ca_bundle=/Users/<snip>/ZscalerRootCertificate-2048-SHA256.crt
+```
+
+## git
+1. Specify the path the ZScaler Root Certificate as "sslCAInfo" in "gitconfig".
+```
+[http]
+  sslCAInfo=/Users/<snip>/ZscalerRootCertificate-2048-SHA256.crt
+```
