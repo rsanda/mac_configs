@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Tree Example</title>
+
+    <style>
+	
+	.node {
+		cursor: pointer;
+	}
+
+	.node circle {
+	  fill: #fff;
+	  stroke: steelblue;
+	  stroke-width: 3px;
+	}
+
+	.node text {
+	  font: 12px sans-serif;
+	}
+
+	.link {
+	  fill: none;
+	  stroke: #ccc;
+	  stroke-width: 2px;
+	}
+	
+    </style>
+
+  </head>
+
+  <body>
+
+<!-- load the d3.js library -->	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+
+<script>
+
+//var treeDat = 
+let treeDat = `[{"targetSitecode":"1234","targetProductno":"PROD_0006","targetLotno":"PD0006_L20161228","distance":"0","parentSitecode":"1234","parentProductno":"PROD_0006","parentTraceunitno":"PD0006_L20161228","relationType":"INTRAFACILITY_TRACE_UNIT","childSitecode":"1234","childProductno":"PROD_0003","childTraceunitno":"PD0003_L20161224","ownCarbon":"5","upstreamCarbon":"10"},{"targetSitecode":"1234","targetProductno":"PROD_0006","targetLotno":"PD0006_L20161228","distance":"0","parentSitecode":"1234","parentProductno":"PROD_0006","parentTraceunitno":"PD0006_L20161228","relationType":"INTRAFACILITY_TRACE_UNIT","childSitecode":"1234","childProductno":"PROD_0005","childTraceunitno":"PD0005_L20161225","ownCarbon":"3","upstreamCarbon":"11"},
+{"targetSitecode":"1234","targetProductno":"PROD_0006","targetLotno":"PD0006_L20161228","distance":"1","parentSitecode":"1234","parentProductno":"PROD_0003","parentTraceunitno":"PD0003_L20161224","relationType":"INTRAFACILITY_TRACE_UNIT","childSitecode":"1234","childProductno":"PROD_0002","childTraceunitno":"PD0002_L20161205","ownCarbon":"2","upstreamCarbon":"10"},{"targetSitecode":"1234","targetProductno":"PROD_0006","targetLotno":"PD0006_L20161228","distance":"1","parentSitecode":"1234","parentProductno":"PROD_0003","parentTraceunitno":"PD0003_L20161224","relationType":"INTRAFACILITY_TRACE_UNIT","childSitecode":"1234","childProductno":"RAW_MATERIAL_0010","childTraceunitno":"RM0010_L20161209","ownCarbon":"0","upstreamCarbon":"12"}]`
+
+console.log(treeDat);
+data = JSON.parse(treeDat);
+
+// ************** Generate the tree diagram	 *****************
+var margin = {top: 20, right: 120, bottom: 20, left: 200},
+	width = 1500 - margin.right - margin.left,
+	height = 550 - margin.top - margin.bottom;
+	
+var i = 0,
+	duration = 200,
+	root;
+
+var tree = d3.layout.tree()
+	.size([height, width]);
+
+var diagonal = d3.svg.diagonal()
+	.projection(function(d) { return [d.y, d.x]; });
+
+var svg = d3.select("body").append("svg")
+	.attr("width", width + margin.right + margin.left)
+	.attr("height", height + margin.top + margin.bottom)
+    .append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// Added by Sanda similar to BoM Sol
+var dataMap = data.reduce(function(map, node) {
+	map[node.childTraceunitno] = node;
+	return map;
+}, {});
+
+//create the tree array
+
+var treeData = [];
+
+data.forEach(function(node) {
+	// add to parent
+	var parent = dataMap[node.parentTraceunitno];
+	if (parent) {
+		// create child array if it doesn't exist
+		(parent.children || (parent.children = [])).push(node);
+	} else {
+		// parent is null or missing
+		treeData.push(node);
+	}
+});
+
+// end of Sanda added part
+
+root = treeData[0];
+root.x0 = height / 2;
+//root.x0 = width / 2;
+//root.y0 = height / 4:
+root.y0 = 0;
+  
+update(root);
+
+d3.select(self.frameElement).style("height", "500px");
+
+function update(source) {
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+	  links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * 200; });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+	  .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter any new nodes at the parent's previous position.
+  var nodeEnter = node.enter().append("g")
+	  .attr("class", "node")
+	  .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+	  .on("click", click)
+	  .on("mouseover", function(d) {
+			var g = d3.select(this);
+			// The class is used to remove the additional text later
+			var info = g.append('text')
+				.classed('info', true)
+				.attr('x', 20)
+				.attr('y', 20)
+				.text( function(d) {if (d.ownCarbon === "") return "Own Emission: 0"; else return ("Own Emission: " + d.ownCarbon)})
+                .style("fill", "blue")
+                .append('tspan')
+                .attr('x', 20).attr('y', 35)
+                //.text("Upstream Emission: " + d.upstreamCarbon)
+                .text( function(d) {if (d.children) return ("Upstream Emission: " + tree.sum(d.upstreamCarbon)); else return "Upstream Emission: " + d.upstreamCarbon}) 
+                .style("fill", "blue");
+           })
+		.on("mouseout", function() {
+			// Remove the info text on mouse out.
+			d3.select(this).select('text.info').remove()
+		});
+	;
+
+  nodeEnter.append("circle")
+	  .attr("r", 1e-6)
+	  .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeEnter.append("text")
+	  .attr("x", function(d) { return d.children || d._children ? -13 : 13; })
+	  .attr("dy", ".35em")
+	  .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+	  .text(function(d) { return d.childProductno; })
+	  .style("fill-opacity", 1e-6)
+	  .style("font",  function(d) { if(d.distance == -1) 
+	  return "bold 15px sans-serif";
+	  else
+	  return "bold 12px sans-serif";});
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+	  .duration(duration)
+	  .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+  nodeUpdate.select("circle")
+	  .attr("r", 10)
+	  .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeUpdate.select("text")
+	  .style("fill-opacity", 1);
+
+  // Transition exiting nodes to the parent's new position.
+  var nodeExit = node.exit().transition()
+	  .duration(duration)
+	  .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+	  .remove();
+
+  nodeExit.select("circle")
+	  .attr("r", 1e-6);
+
+  nodeExit.select("text")
+	  .style("fill-opacity", 1e-6);
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+	  .data(links, function(d) { return d.target.id; });
+
+// Added by Sanda according to BoM Sol
+link.enter().append("text")
+        .attr("font-family", "Arial, Helvetica, sans-serif")
+        .attr("fill", function (d) {
+        	if(d.target.relationType =="INTRAFACILITY_TRACE_UNIT")
+                return "#009900";                                          // To change label color
+        	else if(d.target.relationType =="SHIP_RECIEVE_TRACE_UNIT")
+        		return "#F20D84";})
+        .attr("id", function(d) { return ("link-label" + d.target.id) })
+        .style("font", "bold 12px Arial")
+        .attr("transform", function (d) {
+         	if(d.target.distance==0)
+                return "translate(" + (d.target.y - 140) + "," + (d.target.x + 0 ) + ")"; // To change label position
+         	else
+                return "translate(" + (d.target.y - 100) + "," + (d.target.x - 8) + ")";
+            })
+        .attr("enable-background", "black")    
+        .attr("text-anchor", "middle")
+        // Temporarily remove label to improve visibility
+        .text(function (d) {                                       // To change label name
+        //	if(d.target.relationType =="INTRAFACILITY_TRACE_UNIT")
+        //    	return "Assembled";
+        //	else if(d.target.relationType =="SHIP_RECIEVE_TRACE_UNIT")
+        //		return "Shipped";
+    });
+// end of Sanda added part
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+	  .attr("class", "link")
+	  .attr("d", function(d) {
+		var o = {x: source.x0, y: source.y0};
+		return diagonal({source: o, target: o});
+	  });
+
+  // Transition links to their new position.
+  link.transition()
+	  .duration(duration)
+	  .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  var linkExit = link.exit().transition()
+		.duration(0).remove();
+		
+		linkExit.attr("d", function(d) {
+			var o = { x: d.target.x, y: d.target.y };
+			d3.select("#link-label"+ d.target.id).remove();
+		return diagonal({ source: o, target: o });
+		});
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+	d.x0 = d.x;
+	d.y0 = d.y;
+  });
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+	d._children = d.children;
+	d.children = null;
+  } else {
+	d.children = d._children;
+	d._children = null;
+  }
+  update(d);
+}
+
+</script>
+	
+  </body>
+</html>
